@@ -41,7 +41,7 @@ export function createStateHook<T = unknown, S = unknown>({
   return ({
     invokeAction = true,
     actionArgs,
-  }: HookOptions<Parameters<typeof actionFn>> = {}): T | null => {
+  }: HookOptions<Parameters<Required<StateHookOptions<T, S>>['action']>> = {}): T | null => {
     const actionArr = isArray(actionArgs) ? actionArgs : [];
 
     if (isUndefined(initialValueCopy)) {
@@ -99,7 +99,7 @@ export function createKeyedStateHook<T = unknown, S = unknown>({
     key,
     invokeAction = true,
     actionArgs,
-  }: HookOptions<Parameters<typeof actionFn>> & {
+  }: HookOptions<Parameters<Required<StateHookOptions<T, S>>['action']>> & {
     key?: string | number;
   } = {}): T | null => {
     const [state, setState] = useState<T | null>(null);
