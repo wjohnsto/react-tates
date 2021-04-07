@@ -16,19 +16,19 @@ import noop from 'lodash/noop';
  * @param {State} actor
  * @returns {(<S>(property: string) => S | null)}
  */
-export function createStateHook<S>(
+export function createStateHook<S = unknown>(
   actor: State<S>,
 ): <S>(property: string) => S | null;
-export function createStateHook<T, S>(
+export function createStateHook<T, S = unknown>(
   actor: State<S>,
   prop: string,
 ): () => T | null;
-export function createStateHook<T, S>(
+export function createStateHook<T, S = unknown>(
   actor: State<S>,
   prop: string,
   initialValue: T,
 ): () => T;
-export function createStateHook<T = any, S = any>(
+export function createStateHook<T = unknown, S = unknown>(
   actor: State<S>,
   prop?: string,
   initialValue?: T | null,
@@ -77,7 +77,7 @@ export function createStateHook<T = any, S = any>(
  * @param {string} parentProp
  * @returns {((uid?: string) => T | null)}
  */
-export function createKeyedStateHook<T = any, S = any>(
+export function createKeyedStateHook<T = unknown, S = unknown>(
   actor: State<S>,
   invoke: (uid: string | number) => void,
   parentProp: string,
@@ -116,7 +116,7 @@ export function createKeyedStateHook<T = any, S = any>(
  * @param {string} prop
  * @returns {((id?: string) => T | null)}
  */
-export function createWrappedStateHook<T = any, S = any>(
+export function createWrappedStateHook<T = unknown, S = unknown>(
   actor: State<S>,
   invoke: (param?: string | number) => void,
   prop: string,
