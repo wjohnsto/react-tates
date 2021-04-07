@@ -1,0 +1,5 @@
+src/
+.prettierrc.js
+.eslintrc.js
+.gitignore
+README.md
