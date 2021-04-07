@@ -2,46 +2,41 @@
  * This file provides helper functions for easily creating state hooks
  */
 import { useEffect, useState } from 'react';
-import { SubscribeFn } from 'tates';
+import { State, SubscribeFn } from 'tates';
 import isString from 'lodash/isString';
 import isUndefined from 'lodash/isUndefined';
 import isNil from 'lodash/isNil';
 import noop from 'lodash/noop';
-
-export interface Tate<State> {
-  state: State;
-  subscribe: SubscribeFn;
-}
 
 /**
  * Given an actor, creates a state hook that watches for a property
  * on state and calls setState with the value
  *
  * @export
- * @param {Tate<State>} actor
+ * @param {State} actor
  * @returns {(<S>(property: string) => S | null)}
  */
-export function createStateHook<State>(
-  actor: Tate<State>,
+export function createStateHook<S>(
+  actor: State<S>,
 ): <S>(property: string) => S | null;
-export function createStateHook<T, State>(
-  actor: Tate<State>,
+export function createStateHook<T, S>(
+  actor: State<S>,
   prop: string,
 ): () => T | null;
-export function createStateHook<T, State>(
-  actor: Tate<State>,
+export function createStateHook<T, S>(
+  actor: State<S>,
   prop: string,
   initialValue: T,
 ): () => T;
-export function createStateHook<T = any, State = any>(
-  actor: Tate<State>,
+export function createStateHook<T = any, S = any>(
+  actor: State<S>,
   prop?: string,
   initialValue?: T | null,
 ) {
   let initialValueCopy = initialValue;
   if (!isString(prop)) {
-    return <S>(property: string): S | null => {
-      return createStateHook<S, State>(actor, property)();
+    return <T2>(property: string): T2 | null => {
+      return createStateHook<T2, S>(actor, property)();
     };
   }
 
@@ -77,13 +72,13 @@ export function createStateHook<T = any, State = any>(
  *
  * @export
  * @template T
- * @param {Tate<State>} actor
+ * @param {State} actor
  * @param {(uid: string) => void} invoke
  * @param {string} parentProp
  * @returns {((uid?: string) => T | null)}
  */
-export function createKeyedStateHook<T = any, State = any>(
-  actor: Tate<State>,
+export function createKeyedStateHook<T = any, S = any>(
+  actor: State<S>,
   invoke: (uid: string | number) => void,
   parentProp: string,
 ): (id?: string | number) => T | null {
@@ -116,13 +111,13 @@ export function createKeyedStateHook<T = any, State = any>(
  *
  * @export
  * @template T
- * @param {Tate<State>} actor
+ * @param {State} actor
  * @param {(id: string) => void} invoke
  * @param {string} prop
  * @returns {((id?: string) => T | null)}
  */
-export function createWrappedStateHook<T = any, State = any>(
-  actor: Tate<State>,
+export function createWrappedStateHook<T = any, S = any>(
+  actor: State<S>,
   invoke: (param?: string | number) => void,
   prop: string,
 ): (param?: string | number) => T | null {
