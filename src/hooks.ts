@@ -24,16 +24,16 @@ export interface Tate<State> {
 export function createStateHook<State>(
   actor: Tate<State>,
 ): <S>(property: string) => S | null;
-export function createStateHook<State, T>(
+export function createStateHook<T, State>(
   actor: Tate<State>,
   prop: string,
 ): () => T | null;
-export function createStateHook<State, T>(
+export function createStateHook<T, State>(
   actor: Tate<State>,
   prop: string,
   initialValue: T,
 ): () => T;
-export function createStateHook<State, T = any>(
+export function createStateHook<T = any, State = any>(
   actor: Tate<State>,
   prop?: string,
   initialValue?: T | null,
@@ -41,7 +41,7 @@ export function createStateHook<State, T = any>(
   let initialValueCopy = initialValue;
   if (!isString(prop)) {
     return <S>(property: string): S | null => {
-      return createStateHook<State, S>(actor, property)();
+      return createStateHook<S, State>(actor, property)();
     };
   }
 
@@ -53,7 +53,12 @@ export function createStateHook<State, T = any>(
     const [state, setState] = useState<T | null>(initialValueCopy);
 
     useEffect(() => {
-      return actor.subscribe<any>((value) => {
+      return actor.subscribe<T>((value) => {
+        if (isUndefined(value)) {
+          setState(null);
+          return;
+        }
+
         setState(value);
       }, prop);
     }, []);
@@ -77,7 +82,7 @@ export function createStateHook<State, T = any>(
  * @param {string} parentProp
  * @returns {((uid?: string) => T | null)}
  */
-export function createKeyedStateHook<State, T = any>(
+export function createKeyedStateHook<T = any, State = any>(
   actor: Tate<State>,
   invoke: (uid: string | number) => void,
   parentProp: string,
@@ -97,6 +102,7 @@ export function createKeyedStateHook<State, T = any>(
           setState(null);
           return;
         }
+
         setState(value);
       }, `${parentProp}.${id}`);
     }, [id]);
@@ -115,7 +121,7 @@ export function createKeyedStateHook<State, T = any>(
  * @param {string} prop
  * @returns {((id?: string) => T | null)}
  */
-export function createWrappedStateHook<State, T = any>(
+export function createWrappedStateHook<T = any, State = any>(
   actor: Tate<State>,
   invoke: (param?: string | number) => void,
   prop: string,
@@ -131,6 +137,7 @@ export function createWrappedStateHook<State, T = any>(
           setState(null);
           return;
         }
+
         setState(value);
       }, prop);
     }, [param]);
