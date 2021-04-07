@@ -29,7 +29,7 @@ export interface HookOptions<ActionParameters = any> {
  * @param {State} actor
  * @returns {(<S>(property: string) => S | null)}
  */
-export function createStateHook<T, S extends State<any> = State<any>, ActionFn extends (...args: any[]) => any = (...args: any[]) => any>({
+export function createStateHook<T, S extends State<any>, ActionFn extends (...args: any[]) => any>({
   tate,
   action,
   property,
@@ -86,7 +86,7 @@ export function createStateHook<T, S extends State<any> = State<any>, ActionFn e
  * @param {string} parentProp
  * @returns {((uid?: string) => T | null)}
  */
-export function createKeyedStateHook<T, S extends State<any> = State<any>, ActionFn extends (...args: any[]) => any = (...args: any[]) => any>({
+export function createKeyedStateHook<T, S extends State<any>, ActionFn extends (...args: any[]) => any>({
   tate,
   action,
   property,
