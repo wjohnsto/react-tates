@@ -9,7 +9,7 @@ import noop from 'lodash/noop';
 import isFunction from 'lodash/isFunction';
 import isArray from 'lodash/isArray';
 
-export interface StateHookOptions<T, S, ActionFn extends (...args: any) => any = (...args: any) => any> {
+export interface StateHookOptions<T, S, ActionFn extends (...args: any[]) => any = (...args: any[]) => any> {
   tate: State<S>;
   property: string;
   action?: ActionFn;
@@ -29,7 +29,7 @@ export interface HookOptions<ActionParameters = any> {
  * @param {State} actor
  * @returns {(<S>(property: string) => S | null)}
  */
-export function createStateHook<T = unknown, S = unknown, ActionFn extends (...args: any) => any = (...args: any) => any>({
+export function createStateHook<T = unknown, S = unknown, ActionFn extends (...args: any[]) => any = (...args: any[]) => any>({
   tate,
   action,
   property,
@@ -86,7 +86,7 @@ export function createStateHook<T = unknown, S = unknown, ActionFn extends (...a
  * @param {string} parentProp
  * @returns {((uid?: string) => T | null)}
  */
-export function createKeyedStateHook<T = unknown, S = unknown, ActionFn extends (...args: any) => any = (...args: any) => any>({
+export function createKeyedStateHook<T = unknown, S = unknown, ActionFn extends (...args: any[]) => any = (...args: any[]) => any>({
   tate,
   action,
   property,
