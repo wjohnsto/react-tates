@@ -32,6 +32,7 @@
     "react": "^17.x"
   },
   "scripts": {
+    "prepublishOnly": "npm run build",
     "build": "tsc -p . && esbuild ./src/hooks.js --bundle --external:react --platform=node --outfile=index.js && move-cli ./src/hooks.d.ts index.d.ts",
     "lint": "tsc --noEmit -p . && eslint src/*.{ts,tsx} --parser-options=project:tsconfig.json --quiet --fix",
     "test": "echo \"Error: no test specified\" && exit 1"
