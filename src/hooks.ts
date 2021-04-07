@@ -2,11 +2,18 @@
  * This file provides helper functions for easily creating state hooks
  */
 import { useEffect, useState } from 'react';
-import { State, SubscribeFn } from 'tates';
-import isString from 'lodash/isString';
+import { State } from 'tates';
 import isUndefined from 'lodash/isUndefined';
 import isNil from 'lodash/isNil';
 import noop from 'lodash/noop';
+import { isFunction } from 'lodash';
+
+export interface StateHookOptions<T, S> {
+  tate: State<S>;
+  property: string;
+  action?: (...args: any[]) => void | Promise<void> | Promise<any>;
+  initialValue?: T | null;
+}
 
 /**
  * Given an actor, creates a state hook that watches for a property
@@ -16,31 +23,19 @@ import noop from 'lodash/noop';
  * @param {State} actor
  * @returns {(<S>(property: string) => S | null)}
  */
-export function createStateHook<S = unknown>(
-  actor: State<S>,
-): <S>(property: string) => S | null;
-export function createStateHook<T, S = unknown>(
-  actor: State<S>,
-  prop: string,
-): () => T | null;
-export function createStateHook<T, S = unknown>(
-  actor: State<S>,
-  prop: string,
-  initialValue: T,
-): () => T;
-export function createStateHook<T = unknown, S = unknown>(
-  actor: State<S>,
-  prop?: string,
-  initialValue?: T | null,
-) {
+export function createStateHook<T = unknown, S = unknown>({
+  tate,
+  action,
+  property,
+  initialValue,
+}: StateHookOptions<T, S>) {
   let initialValueCopy = initialValue;
-  if (!isString(prop)) {
-    return <T2>(property: string): T2 | null => {
-      return createStateHook<T2, S>(actor, property)();
-    };
-  }
+  const actionFn = isFunction(action) ? action : noop;
 
-  return (): T | null => {
+  return (
+    invokeAction = true,
+    ...actionArgs: Parameters<typeof actionFn>[]
+  ): T | null => {
     if (isUndefined(initialValueCopy)) {
       initialValueCopy = null;
     }
@@ -48,15 +43,21 @@ export function createStateHook<T = unknown, S = unknown>(
     const [state, setState] = useState<T | null>(initialValueCopy);
 
     useEffect(() => {
-      return actor.subscribe<T>((value) => {
+      if (invokeAction) {
+        void actionFn(...actionArgs);
+      }
+
+      return tate.subscribe<T>((value) => {
         if (isUndefined(value)) {
           setState(null);
           return;
         }
 
         setState(value);
-      }, prop);
-    }, []);
+      }, property);
+
+      /* eslint-disable-next-line react-hooks/exhaustive-deps */
+    }, [invokeAction, ...actionArgs]);
 
     if (isNil(state) && !isNil(initialValueCopy)) {
       return initialValueCopy;
@@ -77,69 +78,50 @@ export function createStateHook<T = unknown, S = unknown>(
  * @param {string} parentProp
  * @returns {((uid?: string) => T | null)}
  */
-export function createKeyedStateHook<T = unknown, S = unknown>(
-  actor: State<S>,
-  invoke: (uid: string | number) => void,
-  parentProp: string,
-): (id?: string | number) => T | null {
-  return (id?: string | number): T | null => {
+export function createKeyedStateHook<T = unknown, S = unknown>({
+  tate,
+  action,
+  property,
+  initialValue,
+}: StateHookOptions<T, S>) {
+  let initialValueCopy = initialValue;
+  const actionFn = isFunction(action) ? action : noop;
+
+  return (
+    key?: string | number,
+    invokeAction = true,
+    ...actionArgs: Parameters<typeof actionFn>[]
+  ): T | null => {
     const [state, setState] = useState<T | null>(null);
 
     useEffect(() => {
-      if (isNil(id)) {
+      if (isUndefined(initialValueCopy)) {
+        initialValueCopy = null;
+      }
+
+      if (isNil(key)) {
         return noop;
       }
 
-      invoke(id);
+      if (invokeAction) {
+        void actionFn(...actionArgs);
+      }
 
-      return actor.subscribe<T>((value) => {
+      return tate.subscribe<T>((value) => {
         if (isUndefined(value)) {
           setState(null);
           return;
         }
 
         setState(value);
-      }, `${parentProp}.${id}`);
-    }, [id]);
+      }, `${property}.${key}`);
+      /* eslint-disable-next-line react-hooks/exhaustive-deps */
+    }, [key, invokeAction, ...actionArgs]);
+
+    if (isNil(state) && !isNil(initialValueCopy)) {
+      return initialValueCopy;
+    }
 
     return state;
   };
 }
-
-/**
- * Similar to createKeyedStateHook, only the subscribe property is already defined
- *
- * @export
- * @template T
- * @param {State} actor
- * @param {(id: string) => void} invoke
- * @param {string} prop
- * @returns {((id?: string) => T | null)}
- */
-export function createWrappedStateHook<T = unknown, S = unknown>(
-  actor: State<S>,
-  invoke: (param?: string | number) => void,
-  prop: string,
-): (param?: string | number) => T | null {
-  return (param?: string | number): T | null => {
-    const [state, setState] = useState<T | null>(null);
-
-    useEffect(() => {
-      invoke(param);
-
-      return actor.subscribe<T>((value) => {
-        if (isUndefined(value)) {
-          setState(null);
-          return;
-        }
-
-        setState(value);
-      }, prop);
-    }, [param]);
-
-    return state;
-  };
-}
-
-export type HookCreator = <S>(property: string) => S | null;
-export type ScopedHookCreator<T> = () => T | null;
