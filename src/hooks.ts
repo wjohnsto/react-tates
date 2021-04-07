@@ -9,7 +9,7 @@ import noop from 'lodash/noop';
 import isFunction from 'lodash/isFunction';
 import isArray from 'lodash/isArray';
 
-export interface StateHookOptions<T, S extends State<any> = State<any>, ActionFn extends (...args: any[]) => any = (...args: any[]) => any> {
+export interface StateHookOptions<T, S extends State<any>, ActionFn extends (...args: any[]) => any> {
   tate: S;
   property: string;
   action?: ActionFn;
