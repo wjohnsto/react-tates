@@ -2,11 +2,11 @@
  * This file provides helper functions for easily creating state hooks
  */
 import { useEffect, useState } from 'react';
-import { State } from 'tates';
+import type { State } from 'tates';
 import isUndefined from 'lodash/isUndefined';
 import isNil from 'lodash/isNil';
 import noop from 'lodash/noop';
-import { isFunction } from 'lodash';
+import isFunction from 'lodash/isFunction';
 
 export interface StateHookOptions<T, S> {
   tate: State<S>;
