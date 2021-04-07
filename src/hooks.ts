@@ -9,10 +9,10 @@ import noop from 'lodash/noop';
 import isFunction from 'lodash/isFunction';
 import isArray from 'lodash/isArray';
 
-export interface StateHookOptions<T, S> {
+export interface StateHookOptions<T, S, ActionFn extends (...args: any) => any = (...args: any) => any> {
   tate: State<S>;
   property: string;
-  action?: (...args: any[]) => void | Promise<void> | Promise<any>;
+  action?: ActionFn;
   initialValue?: T | null;
 }
 
@@ -29,20 +29,20 @@ export interface HookOptions<ActionParameters = any> {
  * @param {State} actor
  * @returns {(<S>(property: string) => S | null)}
  */
-export function createStateHook<T = unknown, S = unknown>({
+export function createStateHook<T = unknown, S = unknown, ActionFn extends (...args: any) => any = (...args: any) => any>({
   tate,
   action,
   property,
   initialValue,
-}: StateHookOptions<T, S>) {
+}: StateHookOptions<T, S, ActionFn>) {
   let initialValueCopy = initialValue;
-  const actionFn = isFunction(action) ? action : noop;
+  const actionFn: ActionFn = isFunction(action) ? action : noop as any;
 
   return ({
     invokeAction = true,
     actionArgs,
-  }: HookOptions<Parameters<Required<StateHookOptions<T, S>>['action']>> = {}): T | null => {
-    const actionArr = isArray(actionArgs) ? actionArgs : [];
+  }: HookOptions<Parameters<ActionFn>> = {}): T | null => {
+    const actionArr: any[] = isArray(actionArgs) ? actionArgs : [];
 
     if (isUndefined(initialValueCopy)) {
       initialValueCopy = null;
@@ -86,12 +86,12 @@ export function createStateHook<T = unknown, S = unknown>({
  * @param {string} parentProp
  * @returns {((uid?: string) => T | null)}
  */
-export function createKeyedStateHook<T = unknown, S = unknown>({
+export function createKeyedStateHook<T = unknown, S = unknown, ActionFn extends (...args: any) => any = (...args: any) => any>({
   tate,
   action,
   property,
   initialValue,
-}: StateHookOptions<T, S>) {
+}: StateHookOptions<T, S, ActionFn>) {
   let initialValueCopy = initialValue;
   const actionFn = isFunction(action) ? action : noop;
 
@@ -99,11 +99,11 @@ export function createKeyedStateHook<T = unknown, S = unknown>({
     key,
     invokeAction = true,
     actionArgs,
-  }: HookOptions<Parameters<Required<StateHookOptions<T, S>>['action']>> & {
+  }: HookOptions<Parameters<ActionFn>> & {
     key?: string | number;
   } = {}): T | null => {
     const [state, setState] = useState<T | null>(null);
-    const actionArr = isArray(actionArgs) ? actionArgs : [];
+    const actionArr: any[] = isArray(actionArgs) ? actionArgs : [];
 
     useEffect(() => {
       if (isUndefined(initialValueCopy)) {
