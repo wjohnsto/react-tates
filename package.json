@@ -1,6 +1,6 @@
 {
   "name": "react-tates",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "A state management library for React that uses tates",
   "main": "index.js",
   "types": "./index.d.ts",
