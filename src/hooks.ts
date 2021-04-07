@@ -7,12 +7,18 @@ import isUndefined from 'lodash/isUndefined';
 import isNil from 'lodash/isNil';
 import noop from 'lodash/noop';
 import isFunction from 'lodash/isFunction';
+import isArray from 'lodash/isArray';
 
 export interface StateHookOptions<T, S> {
   tate: State<S>;
   property: string;
   action?: (...args: any[]) => void | Promise<void> | Promise<any>;
   initialValue?: T | null;
+}
+
+export interface HookOptions<ActionParameters = any> {
+  invokeAction?: boolean;
+  actionArgs?: ActionParameters;
 }
 
 /**
@@ -32,10 +38,12 @@ export function createStateHook<T = unknown, S = unknown>({
   let initialValueCopy = initialValue;
   const actionFn = isFunction(action) ? action : noop;
 
-  return (
+  return ({
     invokeAction = true,
-    ...actionArgs: Parameters<typeof actionFn>[]
-  ): T | null => {
+    actionArgs,
+  }: HookOptions<Parameters<typeof actionFn>>): T | null => {
+    const actionArr = isArray(actionArgs) ? actionArgs : [];
+
     if (isUndefined(initialValueCopy)) {
       initialValueCopy = null;
     }
@@ -44,7 +52,7 @@ export function createStateHook<T = unknown, S = unknown>({
 
     useEffect(() => {
       if (invokeAction) {
-        void actionFn(...actionArgs);
+        void actionFn(...actionArr);
       }
 
       return tate.subscribe<T>((value) => {
@@ -56,8 +64,8 @@ export function createStateHook<T = unknown, S = unknown>({
         setState(value);
       }, property);
 
-      /* eslint-disable-next-line react-hooks/exhaustive-deps */
-    }, [invokeAction, ...actionArgs]);
+      /* eslint-disable-next-line react-hooks/exhaustive-deps,@typescript-eslint/no-unsafe-assignment */
+    }, [invokeAction, ...actionArr]);
 
     if (isNil(state) && !isNil(initialValueCopy)) {
       return initialValueCopy;
@@ -87,12 +95,15 @@ export function createKeyedStateHook<T = unknown, S = unknown>({
   let initialValueCopy = initialValue;
   const actionFn = isFunction(action) ? action : noop;
 
-  return (
-    key?: string | number,
+  return ({
+    key,
     invokeAction = true,
-    ...actionArgs: Parameters<typeof actionFn>[]
-  ): T | null => {
+    actionArgs,
+  }: HookOptions<Parameters<typeof actionFn>> & {
+    key?: string | number;
+  }): T | null => {
     const [state, setState] = useState<T | null>(null);
+    const actionArr = isArray(actionArgs) ? actionArgs : [];
 
     useEffect(() => {
       if (isUndefined(initialValueCopy)) {
@@ -104,7 +115,7 @@ export function createKeyedStateHook<T = unknown, S = unknown>({
       }
 
       if (invokeAction) {
-        void actionFn(...actionArgs);
+        void actionFn(...actionArr);
       }
 
       return tate.subscribe<T>((value) => {
@@ -115,8 +126,8 @@ export function createKeyedStateHook<T = unknown, S = unknown>({
 
         setState(value);
       }, `${property}.${key}`);
-      /* eslint-disable-next-line react-hooks/exhaustive-deps */
-    }, [key, invokeAction, ...actionArgs]);
+      /* eslint-disable-next-line react-hooks/exhaustive-deps,@typescript-eslint/no-unsafe-assignment */
+    }, [key, invokeAction, ...actionArr]);
 
     if (isNil(state) && !isNil(initialValueCopy)) {
       return initialValueCopy;
