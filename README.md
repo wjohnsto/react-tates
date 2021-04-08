@@ -1,5 +1,7 @@
 # react-tates
 
+[![Version](https://img.shields.io/npm/v/react-tates.svg)](https://npmjs.org/package/react-tates)
+
 A state management library for React that uses [tates](https://github.com/wjohnsto/tates)
 
 The **primary objective** of this library is to provide helper methods for creating hooks around a [tates](https://github.com/wjohnsto/tates) object.
