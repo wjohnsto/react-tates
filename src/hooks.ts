@@ -21,7 +21,7 @@ import isArray from 'lodash/isArray';
 export interface StateHookOptions<
   T,
   S extends State<any>,
-  ActionFn extends (...args: any[]) => any
+  ActionFn extends (...args: any[]) => any,
 > {
   /**
    * This is the object obtained from calling tates, also known as the "tate"
@@ -121,7 +121,7 @@ export interface KeyedHookOptions<ActionFn extends (...args: any[]) => any>
 export function createStateHook<
   T,
   S extends State<any>,
-  ActionFn extends (...args: any[]) => any
+  ActionFn extends (...args: any[]) => any,
 >({
   tate,
   action,
@@ -131,6 +131,7 @@ export function createStateHook<
   options?: HookOptions<ActionFn>,
 ) => T | null {
   let initialValueCopy = initialValue;
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const actionFn: ActionFn = isFunction(action) ? action : (noop as any);
 
   return ({
@@ -147,6 +148,7 @@ export function createStateHook<
 
     useEffect(() => {
       if (invokeAction) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         void actionFn(...actionArr);
       }
 
@@ -187,7 +189,7 @@ export function createStateHook<
 export function createKeyedStateHook<
   T,
   S extends State<any>,
-  ActionFn extends (...args: any[]) => any
+  ActionFn extends (...args: any[]) => any,
 >({
   tate,
   action,
@@ -219,6 +221,7 @@ export function createKeyedStateHook<
       }
 
       if (invokeAction) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         void actionFn(...actionArr);
       }
 
